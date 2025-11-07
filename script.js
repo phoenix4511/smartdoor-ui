@@ -92,3 +92,28 @@ async function requestOpen(){
   const res = await fetch(API_ROOT + '/open', { method:'POST', headers:{ 'Authorization':'Bearer '+token } });
   return res;
 }
+document.addEventListener("DOMContentLoaded", () => {
+  const form = document.getElementById("loginForm");
+
+  form.addEventListener("submit", async (event) => {
+    event.preventDefault();
+
+    const username = document.getElementById("username").value;
+    const password = document.getElementById("password").value;
+
+    const response = await fetch("https://smartdoor-api.nasle-khorshid.workers.dev/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username, password })
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+      alert("ورود موفق! در حال انتقال...");
+      window.location.href = "/door.html";
+    } else {
+      alert("نام کاربری یا رمز اشتباه است!");
+    }
+  });
+});
