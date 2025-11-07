@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>SmartDoor — کاربر</title>
+<link href="https://cdn.fontcdn.ir/Font/Persian/Vazir/Vazir.css" rel="stylesheet">
+<link rel="stylesheet" href="style.css"></head>
+<body>
+<div class="container"><div class="card">
+  <div class="header"><div class="title">پروفایل</div><div><button id="themeBtn" class="theme-toggle">روشن</button></div></div>
+  <div>کاربر: <span id="uname">—</span></div>
+  <hr>
+  <h4>تغییر رمز</h4>
+  <input id="oldp" class="input" placeholder="رمز فعلی">
+  <input id="newp" class="input" placeholder="رمز جدید">
+  <button class="btn" onclick="changePassword()">تغییر رمز</button>
+  <div class="msg" id="msg"></div>
+  <hr>
+  <h4>فعال‌سازی اثر انگشت</h4>
+  <button class="btn" onclick="enrollWebAuthn()">فعال‌سازی بیومتریک</button>
+  <div class="footer"><button class="link-btn" onclick="location.href='door.html'">بازگشت</button></div>
+</div></div>
+<script src="script.js"></script>
+<script>
+if(!requireLogin('/index.html')){};
+document.getElementById('uname').textContent = sessionStorage.getItem('sd_user') || '—';
+async function changePassword(){
+  const oldp=document.getElementById('oldp').value.trim(), newp=document.getElementById('newp').value.trim();
+  const msg=document.getElementById('msg');
+  msg.textContent='در حال ارسال...';
+  const token = sessionStorage.getItem('sd_token');
+  const res = await fetch('/api/user/change-password', { method:'POST', headers:{ 'Content-Type':'application/json','Authorization':'Bearer '+token }, body: JSON.stringify({ old:oldp, newp:newp }) });
+  if(res.ok){ msg.textContent='تغییر با موفقیت انجام شد'; } else { msg.textContent='خطا در تغییر رمز'; }
+}
+</script>
+</body>
+</html>

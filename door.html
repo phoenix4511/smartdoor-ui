@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>SmartDoor — کنترل</title>
+<link href="https://cdn.fontcdn.ir/Font/Persian/Vazir/Vazir.css" rel="stylesheet">
+<link rel="stylesheet" href="style.css"></head>
+<body>
+<div class="container"><div class="card">
+  <div class="header"><div class="title">کنترل در</div><div><button id="themeBtn" class="theme-toggle">روشن</button></div></div>
+  <div style="text-align:center">
+    <div id="lock" class="icon-large">🔒</div>
+    <button class="btn" onclick="onOpen()">باز کردن در</button>
+    <div class="msg" id="msg"></div>
+    <div style="margin-top:10px;text-align:center;"><button class="link-btn" onclick="location.href='user.html'">پروفایل</button> &nbsp; <button class="link-btn" onclick="doLogout()">خروج</button></div>
+  </div>
+</div></div>
+<script src="script.js"></script>
+<script>
+if(!requireLogin('/index.html')){};
+async function onOpen(){
+  const msg=document.getElementById('msg');
+  const lock=document.getElementById('lock');
+  msg.textContent='در حال ارسال دستور...';
+  const res = await requestOpen();
+  if(res.ok){ 
+    try{ const j = await res.json(); if(j.result==='ok'){ lock.classList.add('lock-open'); lock.textContent='🔓'; msg.textContent='✅ درب با موفقیت باز شد'; return; } else { msg.textContent = '❌ '+(j.message||'خطا'); return; } } catch(e){ msg.textContent='❌ پاسخ نامعتبر از سرور'; return; }
+  } else {
+    const t = await res.text().catch(()=> 'خطای سرور');
+    msg.textContent = '❌ ' + t;
+  }
+}
+</script>
+</body>
+</html>
