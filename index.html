@@ -7,9 +7,11 @@
 <div class="container"><div class="card">
   <div class="header"><div class="title">در هوشمند</div><button id="themeBtn" class="theme-toggle">روشن</button></div>
   <h3 style="text-align:center">ورود به سیستم</h3>
-  <input id="username" class="input" placeholder="نام کاربری">
-  <input id="password" type="password" class="input" placeholder="رمز عبور">
-  <button class="btn" onclick="onLogin()">ورود</button>
+<form id="loginForm">
+  <input type="text" id="username" placeholder="نام کاربری" required />
+  <input type="password" id="password" placeholder="رمز عبور" required />
+  <button type="submit">ورود</button>
+</form>
   <div class="small">اگر اولین بار است، پس از ورود می‌توانید اثر انگشت را فعال کنید.</div>
   <div class="msg" id="msg"></div>
 </div></div>
