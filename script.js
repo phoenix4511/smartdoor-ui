@@ -1,119 +1,165 @@
-// Basic frontend script for SmartDoor UI
-const API_ROOT = '/api'; // Worker endpoints will live under /api/...
-(function init(){
-  const mode = localStorage.getItem('sd_theme') || 'dark';
-  setTheme(mode);
-  const btn = document.getElementById('themeBtn');
-  if(btn) btn.onclick = toggleTheme;
-})();
+// -------------------------------
+// SmartDoor Frontend (WebAuthn)
+// -------------------------------
 
-function setTheme(mode){
-  const el = document.documentElement;
-  if(mode === 'light'){
-    el.classList.add('light-mode');
-    el.classList.remove('dark-mode');
-  } else {
-    el.classList.add('dark-mode');
-    el.classList.remove('light-mode');
-  }
-  localStorage.setItem('sd_theme', mode);
-  const tb = document.getElementById('themeBtn');
-  if(tb) tb.textContent = mode==='dark' ? 'روشن' : 'تاریک';
+const API = "https://smartdoor-api.nasle-khorshid.workers.dev";
+
+// ذخیره توکن/کاربر
+function saveUser(username) {
+  localStorage.setItem("sd_username", username);
 }
 
-function toggleTheme(){
-  const cur = localStorage.getItem('sd_theme') || 'dark';
-  setTheme(cur === 'dark' ? 'light' : 'dark');
+function getUser() {
+  return localStorage.getItem("sd_username");
 }
 
-async function doLogin(username, password){
-  const res = await fetch(API_ROOT + '/login', {
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({ username, password })
-  });
-  if(res.ok){
-    const data = await res.json();
-    sessionStorage.setItem('sd_token', data.token);
-    sessionStorage.setItem('sd_user', data.username);
-    sessionStorage.setItem('sd_role', data.role);
-    return { ok:true, role:data.role };
-  } else {
-    const t = await res.text().catch(()=> 'خطا');
-    return { ok:false, message:t };
-  }
-}
-
-function doLogout(){
-  sessionStorage.clear();
-  window.location.href = '/index.html';
-}
-
-async function enrollWebAuthn(){
-  try{
-    const token = sessionStorage.getItem('sd_token');
-    if(!token) return alert('ابتدا وارد شوید');
-    const optRes = await fetch(API_ROOT + '/webauthn/register/options', { headers:{ 'Authorization':'Bearer '+token }});
-    if(!optRes.ok) return alert('خطا در دریافت گزینه‌ها');
-    const options = await optRes.json();
-    options.publicKey.challenge = base64ToBuffer(options.publicKey.challenge);
-    options.publicKey.user.id = base64ToBuffer(options.publicKey.user.id);
-    const cred = await navigator.credentials.create(options);
-    const attestation = {
-      id: cred.id,
-      rawId: bufferToBase64(cred.rawId),
-      response: {
-        clientDataJSON: bufferToBase64(cred.response.clientDataJSON),
-        attestationObject: bufferToBase64(cred.response.attestationObject)
-      },
-      type: cred.type
-    };
-    const resp = await fetch(API_ROOT + '/webauthn/register/finish', {
-      method:'POST',
-      headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer '+token },
-      body: JSON.stringify(attestation)
-    });
-    if(resp.ok) alert('اثر انگشت با موفقیت فعال شد');
-    else alert('ثبت اثر انگشت موفق نبود');
-  }catch(e){ console.error(e); alert('خطا در فعال‌سازی بیومتریک') }
-}
-
-function bufferToBase64(buf){ return btoa(String.fromCharCode.apply(null, new Uint8Array(buf))); }
-function base64ToBuffer(b64){ const bin = atob(b64); const arr = new Uint8Array(bin.length); for(let i=0;i<bin.length;i++) arr[i]=bin.charCodeAt(i); return arr.buffer; }
-
-function requireLogin(redirectTo='/index.html'){
-  const t = sessionStorage.getItem('sd_token');
-  if(!t) { window.location.href = redirectTo; return false; }
-  return true;
-}
-
-async function requestOpen(){
-  const token = sessionStorage.getItem('sd_token');
-  const res = await fetch(API_ROOT + '/open', { method:'POST', headers:{ 'Authorization':'Bearer '+token } });
-  return res;
-}
+// -------------------------------
+// 1) ورود معمولی با رمز عبور
+// -------------------------------
 document.addEventListener("DOMContentLoaded", () => {
   const form = document.getElementById("loginForm");
+  const bioBtn = document.getElementById("bioLoginBtn");
 
-  form.addEventListener("submit", async (event) => {
-    event.preventDefault();
+  if (form) {
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
 
-    const username = document.getElementById("username").value;
-    const password = document.getElementById("password").value;
+      const username = document.getElementById("username").value;
+      const password = document.getElementById("password").value;
 
-    const response = await fetch("https://smartdoor-api.nasle-khorshid.workers.dev/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username, password })
-    });
+      const res = await fetch(`${API}/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password })
+      });
 
-    const data = await response.json();
+      const data = await res.json();
 
-    if (data.success) {
-      alert("ورود موفق! در حال انتقال...");
+      if (!data.success) {
+        alert("❌ نام کاربری یا رمز اشتباه است");
+        return;
+      }
+
+      saveUser(username);
+      alert("✔ ورود موفق!");
       window.location.href = "/door.html";
-    } else {
-      alert("نام کاربری یا رمز اشتباه است!");
-    }
-  });
+    });
+  }
+
+  if (bioBtn) {
+    bioBtn.addEventListener("click", loginWithBiometric);
+  }
 });
+
+// -------------------------------
+// 2) ثبت دستگاه برای اثر انگشت
+// -------------------------------
+async function registerBiometric() {
+  const username = getUser();
+  if (!username) return alert("ابتدا وارد شوید!");
+
+  // مرحله ۱ — گرفتن challenge
+  const optRes = await fetch(`${API}/webauthn/register/options`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ username })
+  });
+
+  const options = await optRes.json();
+  options.publicKey.challenge = new Uint8Array(options.publicKey.challenge);
+  options.publicKey.user.id = new Uint8Array(options.publicKey.user.id);
+
+  // مرحله ۲ — باز شدن پنجره اثرانگشت
+  const cred = await navigator.credentials.create(options);
+
+  // مرحله ۳ — ارسال نتیجه به سرور
+  const result = {
+    id: cred.id,
+    rawId: arrayToB64(cred.rawId),
+    type: cred.type,
+    response: {
+      clientDataJSON: arrayToB64(cred.response.clientDataJSON),
+      attestationObject: arrayToB64(cred.response.attestationObject)
+    }
+  };
+
+  const finishRes = await fetch(`${API}/webauthn/register/finish`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ username, credential: result })
+  });
+
+  const finishData = await finishRes.json();
+
+  if (finishData.success) {
+    alert("✔ اثر انگشت با موفقیت ثبت شد!");
+  } else {
+    alert("❌ ثبت انجام نشد");
+  }
+}
+
+// -------------------------------
+// 3) ورود با اثر انگشت (WebAuthn Login)
+// -------------------------------
+async function loginWithBiometric() {
+  const username = document.getElementById("username").value;
+  if (!username) return alert("نام کاربری را وارد کنید");
+
+  // مرحله ۱ — درخواست challenge
+  const optRes = await fetch(`${API}/webauthn/login/options`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ username })
+  });
+
+  const options = await optRes.json();
+
+  if (options.error) {
+    alert("❌ هیچ دستگاهی برای این کاربر ثبت نشده");
+    return;
+  }
+
+  options.publicKey.challenge = new Uint8Array(options.publicKey.challenge);
+  options.publicKey.allowCredentials = options.publicKey.allowCredentials.map(x => ({
+    ...x,
+    id: new Uint8Array(x.id)
+  }));
+
+  // مرحله ۲ — باز شدن پنجره اثرانگشت
+  const assertion = await navigator.credentials.get(options);
+
+  const credential = {
+    id: assertion.id,
+    rawId: arrayToB64(assertion.rawId),
+    type: assertion.type,
+    response: {
+      authenticatorData: arrayToB64(assertion.response.authenticatorData),
+      clientDataJSON: arrayToB64(assertion.response.clientDataJSON),
+      signature: arrayToB64(assertion.response.signature)
+    }
+  };
+
+  // مرحله ۳ — ارسال نتیجه به سرور
+  const finishRes = await fetch(`${API}/webauthn/login/finish`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ username, credential })
+  });
+
+  const data = await finishRes.json();
+
+  if (data.success) {
+    saveUser(username);
+    alert("✔ ورود بیومتریک موفقیت‌آمیز!");
+    window.location.href = "/door.html";
+  } else {
+    alert("❌ خطا در ورود با اثر انگشت");
+  }
+}
+
+// -------------------------------
+// تبدیل بافرها برای ارسال به سرور
+// -------------------------------
+function arrayToB64(buf) {
+  return btoa(String.fromCharCode(...new Uint8Array(buf)));
+}
