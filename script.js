@@ -1,3 +1,12 @@
+// تولید Device ID و ذخیره در مرورگر
+function getDeviceId() {
+  let deviceId = localStorage.getItem("deviceId");
+  if (!deviceId) {
+    deviceId = crypto.randomUUID();  // تولید آیدی یکتا
+    localStorage.setItem("deviceId", deviceId);
+  }
+  return deviceId;
+}
 // -------------------------------
 // SmartDoor Frontend (WebAuthn)
 // -------------------------------
