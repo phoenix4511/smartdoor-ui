@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ورود به سیستم</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <div class="container">
+        <h2>ورود کاربر</h2>
+
+        <div class="input-group">
+            <label>نام کاربری</label>
+            <input id="username" type="text">
+        </div>
+
+        <div class="input-group">
+            <label>رمز عبور</label>
+            <input id="password" type="password">
+        </div>
+
+        <button onclick="login()">ورود</button>
+
+        <div id="error" class="error">نام کاربری یا رمز عبور اشتباه است</div>
+
+        <div class="version">نسخه 1.0.0</div>
+    </div>
+
+    <script>
+        function login() {
+            let user = document.getElementById("username").value;
+            let pass = document.getElementById("password").value;
+            let errorBox = document.getElementById("error");
+
+            if (user === "admin" && pass === "1234") {
+                window.location.href = "dashboard.html";
+            } else {
+                errorBox.style.display = "block";
+            }
+        }
+    </script>
+
+</body>
+</html>
