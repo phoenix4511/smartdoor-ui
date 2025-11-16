@@ -2,33 +2,23 @@
 <html lang="fa">
 <head>
   <meta charset="UTF-8">
-  <title>SmartDoor Login</title>
+  <title>SmartDoor</title>
   <link rel="stylesheet" href="style.css">
+  <script src="script.js" defer></script>
 </head>
-
 <body>
+  <div class="center">
+    <h2>SmartDoor</h2>
+    <p>در حال بررسی وضعیت ورود...</p>
+  </div>
 
-<div class="login-box">
-  <h2>ورود به سامانه SmartDoor</h2>
-
-  <form id="loginForm">
-    <input type="text" id="username" placeholder="نام کاربری" required>
-    <input type="password" id="password" placeholder="رمز عبور" required>
-
-    <button type="submit" class="login-btn">ورود با رمز</button>
-  </form>
-
-  <button id="bioLoginBtn" class="bio-btn">ورود با اثر انگشت</button>
-
-  <p class="register-info">
-    بعد از اولین ورود با رمز، می‌توانید اثر انگشت را ثبت کنید.
-  </p>
-
-  <button onclick="registerBiometric()" class="enroll-btn">
-    ثبت اثر انگشت در این دستگاه
-  </button>
-</div>
-
-<script src="script.js"></script>
+  <script>
+    const token = localStorage.getItem("token");
+    if (token) {
+      window.location.href = "door.html";
+    } else {
+      window.location.href = "login.html";
+    }
+  </script>
 </body>
 </html>
