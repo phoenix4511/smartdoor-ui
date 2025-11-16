@@ -1,53 +1,47 @@
+/* --- استایل فرم لاگین --- */
 body {
-  margin: 0;
-  font-family: sans-serif;
-  background: #121212;
-  color: white;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
+    font-family: sans-serif;
+    background: #f3f3f3;
+    margin: 0;
+    padding: 0;
+    direction: rtl;
 }
 
-.center, .login-container, .door-container {
-  text-align: center;
+.login-container {
+    width: 330px;
+    margin: 120px auto;
+    background: #fff;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 0 12px rgba(0,0,0,0.1);
+    text-align: center;
 }
 
-.login-container, .door-container {
-  background: #1e1e1e;
-  padding: 25px;
-  width: 90%;
-  max-width: 320px;
-  border-radius: 12px;
-  box-shadow: 0 0 10px #00000050;
+.login-container input {
+    width: 90%;
+    padding: 12px;
+    font-size: 15px;
+    margin: 8px 0;
+    border: 1px solid #bbb;
+    border-radius: 8px;
 }
 
-input {
-  width: 90%;
-  padding: 12px;
-  margin: 10px 0;
-  border-radius: 8px;
-  border: none;
+#loginBtn {
+    width: 95%;
+    padding: 12px;
+    background: #3b82f6;
+    border: none;
+    color: white;
+    font-size: 16px;
+    border-radius: 8px;
+    cursor: pointer;
 }
 
-button {
-  width: 95%;
-  padding: 12px;
-  background: #0099ff;
-  border: none;
-  border-radius: 8px;
-  color: white;
-  font-size: 16px;
-  cursor: pointer;
+#loginBtn:hover {
+    background: #2563eb;
 }
 
-button.logout {
-  background: #ff4444;
-  margin-top: 15px;
-}
-
-#errorMsg {
-  color: #ff4444;
-  font-size: 14px;
-  margin-top: 10px;
+#status {
+    margin-top: 10px;
+    color: red;
 }
