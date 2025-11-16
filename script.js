@@ -1,55 +1,50 @@
-const API = "https://smartdoor-api.nasle-khorshid.workers.dev";
+// -----------------------------
+// این فایل ارسال اطلاعات لاگین به worker.js را انجام می‌دهد
+// و نتیجه را دریافت و پردازش می‌کند
+// -----------------------------
 
-// لاگین
 document.addEventListener("DOMContentLoaded", () => {
-  const form = document.getElementById("loginForm");
 
-  if (form) {
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault();
+    const loginBtn = document.getElementById("loginBtn");
+    const statusText = document.getElementById("status");
 
-      const username = document.getElementById("username").value;
-      const password = document.getElementById("password").value;
+    loginBtn.addEventListener("click", async () => {
 
-      const res = await fetch(`${API}/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password })
-      });
+        const username = document.getElementById("username").value.trim();
+        const password = document.getElementById("password").value.trim();
 
-      const data = await res.json();
+        // چک کردن اینکه فیلدها خالی نباشند
+        if (!username || !password) {
+            statusText.textContent = "نام کاربری و رمز عبور الزامی است.";
+            return;
+        }
 
-      if (data.success) {
-        localStorage.setItem("token", data.token);
-        window.location.href = "door.html";
-      } else {
-        document.getElementById("errorMsg").textContent = data.message;
-      }
+        // ارسال اطلاعات به worker.js
+        try {
+            const response = await fetch("/api/login", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+
+                /*  
+                    در این بخش اطلاعات لاگین به worker فرستاده می‌شود
+                    worker به ما جواب می‌دهد که کاربر معتبر هست یا نه
+                */
+                body: JSON.stringify({ username, password })
+            });
+
+            const result = await response.json();
+
+            if (result.status === "success") {
+                // لاگین موفق → انتقال به صفحه اصلی
+                window.location.href = "index.html";
+            } else {
+                // نمایش خطای بازگشتی
+                statusText.textContent = result.message;
+            }
+
+        } catch (error) {
+            statusText.textContent = "خطا در برقراری ارتباط با سرور";
+        }
     });
-  }
 
-  // باز کردن درب
-  const openBtn = document.getElementById("openBtn");
-  if (openBtn) {
-    openBtn.onclick = async () => {
-      const token = localStorage.getItem("token");
-
-      const res = await fetch(`${API}/open`, {
-        method: "POST",
-        headers: { "Authorization": `Bearer ${token}` }
-      });
-
-      const data = await res.json();
-      alert(data.message);
-    };
-  }
-
-  // خروج
-  const logoutBtn = document.getElementById("logoutBtn");
-  if (logoutBtn) {
-    logoutBtn.onclick = () => {
-      localStorage.clear();
-      window.location.href = "login.html";
-    };
-  }
 });
