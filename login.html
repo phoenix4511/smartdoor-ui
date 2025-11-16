@@ -1,48 +1,24 @@
 <!DOCTYPE html>
-<html lang="fa" dir="rtl">
+<html lang="fa">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ورود به سیستم</title>
-
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <title>ورود | SmartDoor</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="script.js" defer></script>
 </head>
-
 <body>
 
-    <div class="container">
-        <h2>ورود کاربر</h2>
+  <div class="login-container">
+    <h2>ورود به سیستم</h2>
 
-        <div class="input-group">
-            <label>نام کاربری</label>
-            <input id="username" type="text">
-        </div>
+    <form id="loginForm">
+      <input type="text" id="username" placeholder="نام کاربری" required>
+      <input type="password" id="password" placeholder="رمز عبور" required>
+      <button type="submit">ورود</button>
+    </form>
 
-        <div class="input-group">
-            <label>رمز عبور</label>
-            <input id="password" type="password">
-        </div>
-
-        <button onclick="login()">ورود</button>
-
-        <div id="error" class="error">نام کاربری یا رمز عبور اشتباه است</div>
-
-        <div class="version">نسخه 1.0.0</div>
-    </div>
-
-    <script>
-        function login() {
-            let user = document.getElementById("username").value;
-            let pass = document.getElementById("password").value;
-            let errorBox = document.getElementById("error");
-
-            if (user === "admin" && pass === "1234") {
-                window.location.href = "dashboard.html";
-            } else {
-                errorBox.style.display = "block";
-            }
-        }
-    </script>
+    <p id="errorMsg"></p>
+  </div>
 
 </body>
 </html>
