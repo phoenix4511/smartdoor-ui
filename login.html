@@ -1,31 +1,23 @@
 <!DOCTYPE html>
-<html lang="fa">
+<html lang="fa" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ورود کاربران</title>
-    <link rel="stylesheet" href="style.css">
-
-    <!-- توضیح: این فایل جاوااسکریپت مسئول ارسال درخواست لاگین به worker.js است -->
-    <script defer src="script.js"></script>
+  <meta charset="utf-8">
+  <title>ورود | SmartDoor</title>
+  <link rel="stylesheet" href="style.css">
+  <script defer src="script.js"></script>
 </head>
 <body>
+  <div class="card">
+    <h2>ورود به SmartDoor</h2>
 
-    <div class="login-container">
+    <input id="username" placeholder="نام کاربری" />
+    <input id="password" type="password" placeholder="رمز عبور" />
 
-        <h2>ورود به سامانه</h2>
+    <button id="loginBtn">ورود</button>
 
-        <!-- فرم ورود -->
-        <input type="text" id="username" placeholder="نام کاربری">
+    <p id="status" class="status"></p>
 
-        <input type="password" id="password" placeholder="رمز عبور">
-
-        <button id="loginBtn">ورود</button>
-
-        <!-- متن نمایش خطا یا موفقیت -->
-        <p id="status"></p>
-
-    </div>
-
+    <p class="hint">اگر برای اولین بار وارد می‌شوید، دستگاه فعلی به‌عنوان کلید ثبت خواهد شد.</p>
+  </div>
 </body>
 </html>
