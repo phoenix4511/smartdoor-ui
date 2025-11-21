@@ -1,24 +1,17 @@
 <!DOCTYPE html>
-<html lang="fa">
+<html lang="fa" dir="rtl">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="utf-8">
   <title>SmartDoor</title>
   <link rel="stylesheet" href="style.css">
-  <script src="script.js" defer></script>
-</head>
-<body>
-  <div class="center">
-    <h2>SmartDoor</h2>
-    <p>در حال بررسی وضعیت ورود...</p>
-  </div>
-
   <script>
-    const token = localStorage.getItem("token");
-    if (token) {
+    // اگر توکن موجود است به door می‌رویم، وگرنه به login
+    if (localStorage.getItem("sd_token")) {
       window.location.href = "door.html";
     } else {
       window.location.href = "login.html";
     }
   </script>
-</body>
+</head>
+<body></body>
 </html>
