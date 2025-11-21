@@ -1,45 +1,29 @@
 <!DOCTYPE html>
-<html lang="fa">
-<head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>SmartDoor — ادمین</title>
-<link href="https://cdn.fontcdn.ir/Font/Persian/Vazir/Vazir.css" rel="stylesheet">
-<link rel="stylesheet" href="style.css"></head>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <title>پنل ادمین | SmartDoor</title>
+  <link rel="stylesheet" href="style.css">
+  <script defer src="script.js"></script>
+</head>
 <body>
-<div class="container"><div class="card">
-  <div class="header"><div class="title">پنل ادمین</div><div><button id="themeBtn" class="theme-toggle">روشن</button></div></div>
-  <h4>افزودن کاربر</h4>
-  <input id="new_user" class="input" placeholder="نام کاربری">
-  <input id="new_pass" class="input" placeholder="رمز عبور">
-  <input id="new_expiry" class="input" placeholder="تاریخ انقضا (مثال: 1404/10/01)">
-  <button class="btn" onclick="addUser()">ایجاد کاربر</button>
-  <div id="msg" class="msg"></div>
-  <hr>
-  <h4>کاربران</h4>
-  <table class="card-table" id="usersTable"><tr><th>کاربر</th><th>انقضا</th><th>وضعیت</th></tr></table>
-  <div class="footer"><button class="link-btn" onclick="location.href='index.html'">خروج</button></div>
-</div></div>
-<script src="script.js"></script>
-<script>
-if(!requireLogin('/index.html')){};
-(async function loadUsers(){
-  const token = sessionStorage.getItem('sd_token');
-  const res = await fetch('/api/admin/users', { headers:{ 'Authorization':'Bearer '+token } });
-  if(res.ok){
-    const users = await res.json();
-    const t = document.getElementById('usersTable');
-    users.forEach(u=>{
-      const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${u.username}</td><td>${u.expiry}</td><td>${u.active? '✅':'❌'}</td>`;
-      t.appendChild(tr);
-    });
-  } else { document.getElementById('msg').textContent='خطا در بارگذاری کاربران' }
-})();
+  <div class="card">
+    <h2>پنل ادمین</h2>
 
-async function addUser(){
-  const u=document.getElementById('new_user').value.trim(), p=document.getElementById('new_pass').value.trim(), e=document.getElementById('new_expiry').value.trim();
-  const token = sessionStorage.getItem('sd_token');
-  const res = await fetch('/api/admin/users', { method:'POST', headers:{ 'Content-Type':'application/json','Authorization':'Bearer '+token }, body: JSON.stringify({username:u,password:p,expiry:e}) });
-  if(res.ok) document.getElementById('msg').textContent='کاربر اضافه شد'; else document.getElementById('msg').textContent='خطا در اضافه کردن';
-}
-</script>
+    <div>
+      <button id="refreshUsersBtn">بارگذاری کاربران</button>
+      <div id="usersList"></div>
+    </div>
+
+    <hr/>
+    <div>
+      <h3>ایجاد کاربر جدید</h3>
+      <input id="newUser" placeholder="نام کاربری" />
+      <input id="newPass" type="password" placeholder="رمز" />
+      <select id="newRole"><option value="user">User</option><option value="admin">Admin</option></select>
+      <button id="createUserBtn">ایجاد کاربر</button>
+    </div>
+
+  </div>
 </body>
 </html>
